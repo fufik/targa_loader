@@ -35,7 +35,7 @@ mod tga{
     impl TGA {
         pub fn new(tga_type: TGAType,contents: Vec<u8>) -> TGA{
             let id_length              = contents[0];
-            let image_type             = contents[2];
+            let image_type             = contents[2]; println!("im_type: {}",image_type);
             let cmap_spec_length       = ((contents[6] as u16) << 8) | contents[5] as u16; 
             let cmap_spec_entry_size   = contents[7];
             let image_spec_pixel_depth = contents[16];
@@ -129,6 +129,7 @@ fn main() {
         println!("Not TrueColor.");
         return
     }
+
     let (width,height) = (tga.image_spec_width,tga.image_spec_height);
     let pixmap = conn.generate_id();
     xcb::create_pixmap(&conn, depth, pixmap,win,width,height);  //Creating a pixmap
@@ -155,19 +156,13 @@ fn main() {
                 let r = event.response_type() & !0x80;
                 match r {
                     xcb::EXPOSE => {
-                        let exp: xcb::Event<xcb::ffi::xproto::xcb_expose_event_t> = xcb::Event{ptr: {let p: *mut xcb::ffi::xproto::xcb_expose_event_t = event.ptr
-                                                                                                     as *mut xcb::ffi::xproto::xcb_expose_event_t;p}, };
                         /* We draw */
                         xcb::copy_area(&conn,
                                        pixmap,
                                        win,
                                        foreground,
-                                       exp.x() as i16,
-                                       exp.y() as i16,
-                                       exp.x() as i16,
-                                       exp.y() as i16,
-                                       exp.width(),
-                                       exp.height()
+                                       0,0,0,0,
+                                       width,height
                         );
                         /* We flush the request */
                         conn.flush();
@@ -177,8 +172,11 @@ fn main() {
                         let key_press : &xcb::KeyPressEvent = unsafe {
                             xcb::cast_event(&event)
                         };
+
                         println!("Key '{}' pressed", key_press.detail());
-                        break;
+                        if key_press.detail() == 9{
+                            break;
+                        }
                     },
                     _ => {}
                 }
