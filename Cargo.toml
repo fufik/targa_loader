@@ -1,0 +1,8 @@
+[package]
+name = "targa_loader"
+version = "0.1.0"
+authors = ["fufik <ivaiva1999ivaiva@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+xcb = "0.8"
